@@ -1,5 +1,5 @@
 console.log("==============Task1================");
-function find_and_print(messages, current_station) {
+function findAndPrint(messages, current_station) {
   const greenLine = [
     "Songshan",
     "Nanjing Sanmin",
@@ -92,11 +92,11 @@ const messages = {
   Vivian: "I'm at Xindian station waiting for you.",
 };
 
-find_and_print(messages, "Wanlong"); // print Mary
-find_and_print(messages, "Songshan"); // print Copper
-find_and_print(messages, "Qizhang"); // print Leslie
-find_and_print(messages, "Ximen"); // print Bob
-find_and_print(messages, "Xindian City Hall"); // print Vivian
+findAndPrint(messages, "Wanlong"); // print Mary
+findAndPrint(messages, "Songshan"); // print Copper
+findAndPrint(messages, "Qizhang"); // print Leslie
+findAndPrint(messages, "Ximen"); // print Bob
+findAndPrint(messages, "Xindian City Hall"); // print Vivian
 
 console.log("==============Task2================");
 
