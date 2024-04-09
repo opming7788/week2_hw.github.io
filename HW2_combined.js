@@ -1,12 +1,5 @@
 console.log("==============Task1================");
 function find_and_print(messages, current_station) {
-  const Frdlocation = {
-    Leslie: "Xiaobitan",
-    Bob: "Ximen",
-    Mary: "Jingmei",
-    Copper: "Taipei Arena",
-    Vivian: "Xindian",
-  };
   const greenLine = [
     "Songshan",
     "Nanjing Sanmin",
@@ -28,32 +21,67 @@ function find_and_print(messages, current_station) {
     "Xindian City Hall",
     "Xindian",
   ];
+  const greenLineModified = [
+    "Songshan",
+    "Nanjing Sanmin",
+    "Taipei Arena",
+    "Nanjing Fuxing",
+    "Songjiang Nanjing",
+    "Zhongshan",
+    "Beimen",
+    "Ximen",
+    "Xiaonanmen",
+    "Chiang Kai-shek Memorial Hall",
+    "Guting",
+    "Taipower Building",
+    "Gongguan",
+    "Wanlong",
+    "Jingmei",
+    "Dapinglin",
+    "Qizhang",
+    "Xindian City Hall",
+    "Xindian",
+    "Xiaobitan",
+  ];
+  let Frdlocation = {};
 
-  if (current_station === "Xiaobitan" || current_station === "Qizhang") {
-    console.log("Leslie");
-  } else {
-    const myindex = greenLine.indexOf(current_station);
-    const distcollc = {};
-    let dist = 0;
-    for (let itm of greenLine) {
-      dist = Math.abs(greenLine.indexOf(itm) - myindex);
-      distcollc[itm] = dist;
-    }
+  for (const [friend, stationText] of Object.entries(messages)) {
+    const friendstation = greenLineModified.filter((str) =>
+      stationText.includes(str)
+    );
+    Frdlocation[friend] = friendstation[0];
+  }
 
-    const dis_of_friends = {};
-    for (let [key, value] of Object.entries(Frdlocation)) {
-      for (let [key2, value2] of Object.entries(distcollc)) {
-        if (value === key2) {
-          dis_of_friends[key] = value2;
-        }
+  let myindex = greenLine.indexOf(current_station);
+  let distcollc = {};
+
+  for (const itm of greenLine) {
+    const dist = Math.abs(greenLine.indexOf(itm) - myindex);
+    distcollc[itm] = dist;
+  }
+
+  distcollc["Xiaobitan"] = Math.abs(greenLine.indexOf("Qizhang") - myindex) + 1;
+
+  let dis_of_friends = {};
+
+  for (const [friend, frlocation] of Object.entries(Frdlocation)) {
+    for (const [location, dist2] of Object.entries(distcollc)) {
+      if (frlocation === location) {
+        dis_of_friends[friend] = dist2;
       }
     }
-
-    let minDistanceFriend = Object.keys(dis_of_friends).reduce((a, b) =>
-      dis_of_friends[a] < dis_of_friends[b] ? a : b
-    );
-    console.log(minDistanceFriend);
   }
+
+  const min_dist_of_friends = Math.min(...Object.values(dis_of_friends));
+  let nearest_friends = [];
+
+  for (const [key, value] of Object.entries(dis_of_friends)) {
+    if (value === min_dist_of_friends) {
+      nearest_friends.push(key);
+    }
+  }
+
+  console.log(nearest_friends.join(" "));
 }
 
 const messages = {
