@@ -1,32 +1,64 @@
+print("=============Task1==============")
+
 def find_and_print(messages, current_station):
-    Frdlocation={"Leslie":"Xiaobitan","Bob":"Ximen","Mary":"Jingmei",\
-                 "Copper":"Taipei Arena","Vivian":"Xindian"}
+
+    # Frdlocation={"Leslie":"Xiaobitan","Bob":"Ximen","Mary":"Jingmei",\
+    #              "Copper":"Taipei Arena","Vivian":"Xindian"}
     greenLine=["Songshan","Nanjing Sanmin","Taipei Arena","Nanjing Fuxing","Songjiang Nanjing","Zhongshan", 
                "Beimen","Ximen","Xiaonanmen","Chiang Kai-shek Memorial Hall","Guting","Taipower Building",
-                "Gongguan","Wanlong","Jingmei","Dapinglin","Qizhang","Xindian City Hall","Xindian"]
-    # current_station="Xiaonanmen"
-    #如果輸入為"Xiaobitan"或是"Qizhang"，印出"Leslie"
-    if current_station=="Xiaobitan" or current_station=="Qizhang":
-        print("Leslie")
-        
-    else:#執行沒有"Xiaobitan"或是"Qizhang"與"Leslie"的結果
-        myindex=greenLine.index(current_station)#current_station在綠線上的位置
+                "Gongguan","Wanlong","Jingmei","Dapinglin","Qizhang","Xindian City Hall","Xindian",]
+    greenLineModified=["Songshan","Nanjing Sanmin","Taipei Arena","Nanjing Fuxing","Songjiang Nanjing","Zhongshan", 
+               "Beimen","Ximen","Xiaonanmen","Chiang Kai-shek Memorial Hall","Guting","Taipower Building",
+                "Gongguan","Wanlong","Jingmei","Dapinglin","Qizhang","Xindian City Hall","Xindian","Xiaobitan"]
+    Frdlocation={} #將message中朋友的訊息解構出來放入Frdlocation字典中key:"朋友名"，value:"朋友所在的站名"
+    for friend,stationText in messages.items():
+        friendstation=[str for str in greenLineModified if str in stationText]
+        Frdlocation[friend]=friendstation[0]
+
+    if current_station!="Xiaobitan":#如果current_station不是在Xiaobitan的話計算current_station與所有站的距離
+        myindex=greenLine.index(current_station)
         distcollc={}
         dist=0
-        for itm in greenLine: #計算current_station在綠線上與其他站之間的距離，並蒐集到一個distcollc的list內
+        for itm in greenLine: 
             dist=abs(greenLine.index(itm)-myindex)
             distcollc[itm]=dist
-        # print(distcollc)
-        dis_of_friends={}#計算所有朋友與current_station的距離，並蒐集成一個字典，
-                            #key是朋友名字，值是距離
-        for key,value in Frdlocation.items():
-            for key2,value2 in distcollc.items():
-                if value==key2:
-                    dis_of_friends[key]=value2
-        # print(dis_of_friends)
-        print(min(dis_of_friends, key=dis_of_friends.get))
+        #如果current_station不是在Xiaobitan的話計算current_station與所有站的距離(包括Xiaobitan)
+        distcollc["Xiaobitan"]=abs(greenLine.index("Qizhang")-myindex)+1
+
+
+        dis_of_friends={}#計算朋友與current_station的距離
+        for friend,frlocation in Frdlocation.items():
+            for location,dist2 in distcollc.items():
+                if frlocation==location:
+                    dis_of_friends[friend]=dist2#朋友與current_station的距離蒐集起來
+
+    elif current_station=="Xiaobitan":#如果current_station是在Xiaobitan的話
+        current_station="Qizhang"#置換current_station為"Qizhang"站並計算所有站與current_station的距離最後+1
+        myindex=greenLine.index(current_station)
+        distcollc={}
+        dist=0
+        for itm in greenLine: 
+            dist=abs(greenLine.index(itm)-myindex)
+            distcollc[itm]=dist
+
+        distcollc["Xiaobitan"]=abs(greenLine.index("Qizhang")-myindex)+1 #所有站與current_station("Xiaobitan")的距離=所有站與Qizhang的距離+1
+
+        dis_of_friends={}#計算朋友與current_station的距離
+        for friend,frlocation in Frdlocation.items():
+            for location,dist2 in distcollc.items():
+                if frlocation==location:
+                    dis_of_friends[friend]=dist2#朋友與current_station的距離蒐集起來
+
     
-print("=============Task1==============")
+    min_dist_of_friends = min(dis_of_friends.values())#蒐集距離最近的朋友們的距離
+
+    #找出最近距離的朋友們的名字
+    nearest_friends = [key for key, value in dis_of_friends.items() if value == min_dist_of_friends]
+    for frd in nearest_friends:
+        print(frd,end=" ")#印出最近距離的朋友們的名字
+    print("")
+        
+
 # your code here
 messages={
 "Leslie":"I'm at home near Xiaobitan station.",
@@ -35,7 +67,6 @@ messages={
 "Copper":"I just saw a concert at Taipei Arena.",
 "Vivian":"I'm at Xindian station waiting for you."
 }
- 
 find_and_print(messages, "Wanlong") # print Mary
 find_and_print(messages, "Songshan") # print Copper
 find_and_print(messages, "Qizhang") # print Leslie
@@ -52,7 +83,7 @@ def book(consultants, hour, duration, criteria):
         for consultant in consultants:
             name = consultant.pop("name")  # 移除並取得 "name" 鍵的值
             schedule.append({name: [], **consultant})  # 創建新的字典，將 "name" 鍵替換為新的鍵值對
-        print(schedule)
+        
     # schedule=[{"John":[15,16,17], "rate":4.5, "price":1000},
     #           {"Bob":[3,4,5], "rate":3, "price":1200},
     #           {"Jenny":[12,13,14,15], "rate":3.8, "price":800}]
