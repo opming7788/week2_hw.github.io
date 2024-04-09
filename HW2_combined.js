@@ -105,8 +105,8 @@ let schedule = [];
 function book(consultants, hour, duration, criteria) {
   if (schedule.length === 0) {
     consultants.forEach((consultant) => {
-      let name = consultant.name; // 取得 "name" 属性的值
-      schedule.push({ [name]: [], ...consultant }); // 创建新的对象，将 "name" 属性替换为新的键值对
+      let name = consultant.name; // 取得 "name" 屬性的值
+      schedule.push({ [name]: [], ...consultant }); // 創建新的物件，將 "name" 屬性替換為新的鍵值對
     });
   }
 
