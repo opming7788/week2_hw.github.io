@@ -1,12 +1,7 @@
 print("=============Task1==============")
 
 def find_and_print(messages, current_station):
-
-    # Frdlocation={"Leslie":"Xiaobitan","Bob":"Ximen","Mary":"Jingmei",\
-    #              "Copper":"Taipei Arena","Vivian":"Xindian"}
-    greenLine=["Songshan","Nanjing Sanmin","Taipei Arena","Nanjing Fuxing","Songjiang Nanjing","Zhongshan", 
-               "Beimen","Ximen","Xiaonanmen","Chiang Kai-shek Memorial Hall","Guting","Taipower Building",
-                "Gongguan","Wanlong","Jingmei","Dapinglin","Qizhang","Xindian City Hall","Xindian",]
+    #Xiaobitan放在greenLine最後一個元素變成greenLineModified
     greenLineModified=["Songshan","Nanjing Sanmin","Taipei Arena","Nanjing Fuxing","Songjiang Nanjing","Zhongshan", 
                "Beimen","Ximen","Xiaonanmen","Chiang Kai-shek Memorial Hall","Guting","Taipower Building",
                 "Gongguan","Wanlong","Jingmei","Dapinglin","Qizhang","Xindian City Hall","Xindian","Xiaobitan"]
@@ -14,45 +9,29 @@ def find_and_print(messages, current_station):
     for friend,stationText in messages.items():
         friendstation=[str for str in greenLineModified if str in stationText]
         Frdlocation[friend]=friendstation[0]
+        # 讓Frdlocation變成{朋友:所在地點}此種字典=>Frdlocation={"Leslie":"Xiaobitan","Bob":"Ximen","Mary":"Jingmei",\
+    #              "Copper":"Taipei Arena","Vivian":"Xindian"}
+    friendToStationsDistanceSet={}#計算每個朋友距離每個車站的距離並蒐集成{朋友:[3,2,1,0,1,2,3.....]}的字典，此字典例子=>朋友在Nanjing Fuxing
+    for friend,location in Frdlocation.items():#將朋友與該朋友所在車站名稱拿出來遍歷
+        if location!="Xiaobitan":#如果該朋友所在車站不是"Xiaobitan"，將該朋友距離每個車站的距離蒐集成list並將該擴充後的list成為朋友名字所對應的鍵值
+            friendToStationsDistanceSet[friend]=[abs(greenLineModified[:-1].index(itm)-greenLineModified[:-1].index(location)) for itm in greenLineModified[:-1]]
+            #由於"Xiaobitan"距離其他車站距離="Qizhang"距離其他車站距離+1站
+            #以下特別加入"Xiaobitan"距離朋友的距離加入該list，並將該擴充後的list成為朋友名字所對應的鍵值
+            friendToStationsDistanceSet[friend].append(abs(greenLineModified[:-1].index(location)-greenLineModified[:-1].index("Qizhang"))+1)
+        elif location=="Xiaobitan":#如果該朋友所在車站剛好是"Xiaobitan"
+            location="Qizhang"#將朋友所在車站換成"Qizhang"站去計算，最後統一加上1
+            friendToStationsDistanceSet[friend]=[abs(greenLineModified[:-1].index(itm)-greenLineModified[:-1].index(location))+1 for itm in greenLineModified[:-1]]
+            #手動加入朋友距離"Xiaobitan"距離進入list鍵值
+            friendToStationsDistanceSet[friend].append(abs(greenLineModified[:-1].index(location)-greenLineModified[:-1].index("Qizhang")))
 
-    if current_station!="Xiaobitan":#如果current_station不是在Xiaobitan的話計算current_station與所有站的距離
-        myindex=greenLine.index(current_station)
-        distcollc={}
-        dist=0
-        for itm in greenLine: 
-            dist=abs(greenLine.index(itm)-myindex)
-            distcollc[itm]=dist
-        #如果current_station不是在Xiaobitan的話計算current_station與所有站的距離(包括Xiaobitan)
-        distcollc["Xiaobitan"]=abs(greenLine.index("Qizhang")-myindex)+1
+    myindex=greenLineModified.index(current_station)#current_station目前所在位置
 
-
-        dis_of_friends={}#計算朋友與current_station的距離
-        for friend,frlocation in Frdlocation.items():
-            for location,dist2 in distcollc.items():
-                if frlocation==location:
-                    dis_of_friends[friend]=dist2#朋友與current_station的距離蒐集起來
-
-    elif current_station=="Xiaobitan":#如果current_station是在Xiaobitan的話
-        current_station="Qizhang"#置換current_station為"Qizhang"站並計算所有站與current_station的距離最後+1
-        myindex=greenLine.index(current_station)
-        distcollc={}
-        dist=0
-        for itm in greenLine: 
-            dist=abs(greenLine.index(itm)-myindex)
-            distcollc[itm]=dist
-
-        distcollc["Xiaobitan"]=abs(greenLine.index("Qizhang")-myindex)+1 #所有站與current_station("Xiaobitan")的距離=所有站與Qizhang的距離+1
-
-        dis_of_friends={}#計算朋友與current_station的距離
-        for friend,frlocation in Frdlocation.items():
-            for location,dist2 in distcollc.items():
-                if frlocation==location:
-                    dis_of_friends[friend]=dist2#朋友與current_station的距離蒐集起來
-
-    
-    min_dist_of_friends = min(dis_of_friends.values())#蒐集距離最近的朋友們的距離
-
+    dis_of_friends={}#計算所有朋友與current_station的距離放入dis_of_friends字典中
+    for friend,distSet in friendToStationsDistanceSet.items():
+        dis_of_friends[friend]=distSet[myindex]
+    # print(dis_of_friends)
     #找出最近距離的朋友們的名字
+    min_dist_of_friends = min(dis_of_friends.values())#蒐集距離最近的朋友們的距離
     nearest_friends = [key for key, value in dis_of_friends.items() if value == min_dist_of_friends]
     for frd in nearest_friends:
         print(frd,end=" ")#印出最近距離的朋友們的名字
@@ -76,60 +55,38 @@ find_and_print(messages, "Xindian City Hall") # print Vivian
 print("=============Task2==============")
 
 schedule=[]
-
 def book(consultants, hour, duration, criteria):
-
     if len(schedule)==0:
         for consultant in consultants:
             name = consultant.pop("name")  # 移除並取得 "name" 鍵的值
-            schedule.append({name: [], **consultant})  # 創建新的字典，將 "name" 鍵替換為新的鍵值對
-        
+            schedule.append({name: [], **consultant})  # 創建新的字典，將 "name" 鍵替換為新的鍵值對，例如下方schedule
     # schedule=[{"John":[15,16,17], "rate":4.5, "price":1000},
     #           {"Bob":[3,4,5], "rate":3, "price":1200},
     #           {"Jenny":[12,13,14,15], "rate":3.8, "price":800}]
-    duration_Time=[]
+    duration_Time=[] #輸入book(consultants, 14, 3, "price")=>duration_Time=[14,15,16]
     for i in range(1,duration+1):
         duration_Time.append(hour)
         hour+=1
-    # print(duration_Time)
-
     is_available=[]
+    for consultant in schedule:#遍歷schedule取出其中的元素如=>{"xxxx":[被占用時間], "rate":..., "price":...}
+        #consultant中的"xxxx":[被占用時間]是否跟duration_Time中的時間衝突，沒衝突代表此人可以預約時間(加入is_vaailable)
+        if all(time not in consultant.get(list(consultant.keys())[0], []) for time in duration_Time):
+            is_available.append(consultant)        
+    if is_available==[]:#如果所有人的時間都被占滿，回傳"No Service"
+        print("No Service")
+        return
     if criteria=="price":#只考慮價格低的狀況
-        for consultant in schedule:#遍歷schedule取出其中的元素如=>{"xxxx":[被占用時間], "rate":..., "price":...}
-            #consultant中的"xxxx":[被占用時間]是否跟duration_Time中的時間衝突，沒衝突代表此人可以預約時間(加入is_vaailable)
-            if all(time not in consultant.get(list(consultant.keys())[0], []) for time in duration_Time):
-                is_available.append(consultant)
-        
-        if is_available==[]:#如果所有人的時間都被占滿，回傳"No Service"
-            print("No Service")
-            return
-
         min_price_consultant = min(is_available, key=lambda x: x["price"]) #is_available中選出價格最低的
-        first_key = list(min_price_consultant.keys())[0]#取出該價格最低人的名字{"xxxx":[占用時間],"rate":..., "price":...}
-        print(first_key)#印出該價格最低人的名字
-        # /////////////////
-        #將duration_Time加入該人的占用時間字典元素中{"xxxx":[占用時間],"rate":..., "price":...}
-        bob_consultant = next((consultant for consultant in schedule if first_key in consultant), None)
-        if bob_consultant:
-            bob_consultant[first_key].extend(duration_Time)
-        # print(schedule)
-    elif criteria=="rate":#只考慮評價最高的狀況
-        for consultant in schedule:#遍歷schedule取出其中的元素如=>{"xxxx":[被占用時間], "rate":..., "price":...}
-            #consultant中的"xxxx":[被占用時間]是否跟duration_Time中的時間衝突，沒衝突代表此人可以預約時間(加入is_vaailable)
-            if all(time not in consultant.get(list(consultant.keys())[0], []) for time in duration_Time):
-                is_available.append(consultant)
-        if is_available==[]:#如果所有人的時間都被占滿，回傳"No Service"
-            print("No Service")
-            return 
-        min_price_consultant = max(is_available, key=lambda x: x["rate"]) #is_available中選出評價最高的
-        first_key = list(min_price_consultant.keys())[0]#取出評價最高人的名字{"xxxx":[占用時間],"rate":..., "price":...}
-        print(first_key)#印出評價最高人的名字
-        # /////////////////
-        #將duration_Time加入該人的"占用時間"字典元素中{"xxxx":[占用時間],"rate":..., "price":...}
-        bob_consultant = next((consultant for consultant in schedule if first_key in consultant), None)
-        if bob_consultant:
-            bob_consultant[first_key].extend(duration_Time)
-        # print(schedule)
+    if criteria=="rate":#只考慮評價最高的狀況
+        min_price_consultant = max(is_available, key=lambda x: x["rate"]) 
+    first_key = list(min_price_consultant.keys())[0]#取出該價格最低人的名字{"xxxx":[占用時間],"rate":..., "price":...}
+    print(first_key)#印出(價格/評價)最低人的名字
+    # /////////////////
+    #將duration_Time加入該人的占用時間字典元素中{"xxxx":[占用時間],"rate":..., "price":...}
+    bob_consultant = next((consultant for consultant in schedule if first_key in consultant), None)
+    if bob_consultant:
+        bob_consultant[first_key].extend(duration_Time)
+        
 # your code here
 consultants=[
 {"name":"John", "rate":4.5, "price":1000},

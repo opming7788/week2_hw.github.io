@@ -1,26 +1,5 @@
 console.log("==============Task1================");
-function findAndPrint(messages, current_station) {
-  const greenLine = [
-    "Songshan",
-    "Nanjing Sanmin",
-    "Taipei Arena",
-    "Nanjing Fuxing",
-    "Songjiang Nanjing",
-    "Zhongshan",
-    "Beimen",
-    "Ximen",
-    "Xiaonanmen",
-    "Chiang Kai-shek Memorial Hall",
-    "Guting",
-    "Taipower Building",
-    "Gongguan",
-    "Wanlong",
-    "Jingmei",
-    "Dapinglin",
-    "Qizhang",
-    "Xindian City Hall",
-    "Xindian",
-  ];
+function findAndPrint(messages, currentStation) {
   const greenLineModified = [
     "Songshan",
     "Nanjing Sanmin",
@@ -43,45 +22,56 @@ function findAndPrint(messages, current_station) {
     "Xindian",
     "Xiaobitan",
   ];
-  let Frdlocation = {};
 
+  const frdLocation = {};
   for (const [friend, stationText] of Object.entries(messages)) {
-    const friendstation = greenLineModified.filter((str) =>
+    const friendStation = greenLineModified.find((str) =>
       stationText.includes(str)
     );
-    Frdlocation[friend] = friendstation[0];
+    frdLocation[friend] = friendStation || "";
   }
 
-  let myindex = greenLine.indexOf(current_station);
-  let distcollc = {};
-
-  for (const itm of greenLine) {
-    const dist = Math.abs(greenLine.indexOf(itm) - myindex);
-    distcollc[itm] = dist;
-  }
-
-  distcollc["Xiaobitan"] = Math.abs(greenLine.indexOf("Qizhang") - myindex) + 1;
-
-  let dis_of_friends = {};
-
-  for (const [friend, frlocation] of Object.entries(Frdlocation)) {
-    for (const [location, dist2] of Object.entries(distcollc)) {
-      if (frlocation === location) {
-        dis_of_friends[friend] = dist2;
-      }
+  const friendToStationsDistanceSet = {};
+  for (const [friend, location] of Object.entries(frdLocation)) {
+    if (location !== "Xiaobitan") {
+      friendToStationsDistanceSet[friend] = greenLineModified
+        .slice(0, -1)
+        .map((itm) =>
+          Math.abs(
+            greenLineModified.indexOf(itm) - greenLineModified.indexOf(location)
+          )
+        );
+      friendToStationsDistanceSet[friend].push(
+        Math.abs(
+          greenLineModified.indexOf(location) -
+            greenLineModified.indexOf("Qizhang")
+        ) + 1
+      );
+    } else {
+      const locationIndex = greenLineModified.indexOf("Qizhang");
+      friendToStationsDistanceSet[friend] = greenLineModified
+        .slice(0, -1)
+        .map(
+          (itm) => Math.abs(greenLineModified.indexOf(itm) - locationIndex) + 1
+        );
+      friendToStationsDistanceSet[friend].push(
+        Math.abs(greenLineModified.indexOf(location) - locationIndex)
+      );
     }
   }
 
-  const min_dist_of_friends = Math.min(...Object.values(dis_of_friends));
-  let nearest_friends = [];
+  const myIndex = greenLineModified.indexOf(currentStation);
 
-  for (const [key, value] of Object.entries(dis_of_friends)) {
-    if (value === min_dist_of_friends) {
-      nearest_friends.push(key);
-    }
+  const disOfFriends = {};
+  for (const [friend, distSet] of Object.entries(friendToStationsDistanceSet)) {
+    disOfFriends[friend] = distSet[myIndex];
   }
 
-  console.log(nearest_friends.join(" "));
+  const minDistOfFriends = Math.min(...Object.values(disOfFriends));
+  const nearestFriends = Object.keys(disOfFriends).filter(
+    (key) => disOfFriends[key] === minDistOfFriends
+  );
+  console.log(nearestFriends.join(" "));
 }
 
 const messages = {
@@ -100,85 +90,58 @@ findAndPrint(messages, "Xindian City Hall"); // print Vivian
 
 console.log("==============Task2================");
 
-let schedule = [];
+const schedule = [];
 
 function book(consultants, hour, duration, criteria) {
   if (schedule.length === 0) {
-    consultants.forEach((consultant) => {
-      let name = consultant.name; // 取得 "name" 屬性的值
-      schedule.push({ [name]: [], ...consultant }); // 創建新的物件，將 "name" 屬性替換為新的鍵值對
-    });
+    for (const consultant of consultants) {
+      const { name, ...rest } = consultant;
+      schedule.push({ [name]: [], ...rest });
+    }
   }
 
-  let duration_Time = [];
-  for (let i = 1; i <= duration; i++) {
-    duration_Time.push(hour);
-    hour += 1;
+  const durationTime = [];
+  for (let i = 0; i < duration; i++) {
+    durationTime.push(hour + i);
   }
 
-  let is_available = [];
+  const isAvailable = [];
+  for (const consultant of schedule) {
+    if (
+      !consultant[Object.keys(consultant)[0]].some((time) =>
+        durationTime.includes(time)
+      )
+    ) {
+      isAvailable.push(consultant);
+    }
+  }
+
+  if (isAvailable.length === 0) {
+    console.log("No Service");
+    return;
+  }
+
+  let minPriceConsultant;
   if (criteria === "price") {
-    for (let consultant of schedule) {
-      if (
-        !consultant[Object.keys(consultant)[0]].some((time) =>
-          duration_Time.includes(time)
-        )
-      ) {
-        is_available.push(consultant);
-      }
-    }
-
-    if (is_available.length === 0) {
-      console.log("No Service");
-      return;
-    }
-
-    let min_price_consultant = is_available.reduce((prev, curr) =>
-      prev.price < curr.price ? prev : curr
+    minPriceConsultant = isAvailable.reduce(
+      (min, curr) => (curr.price < min.price ? curr : min),
+      isAvailable[0]
     );
-    let first_key = Object.keys(min_price_consultant)[0];
-    console.log(first_key);
-
-    let consultantToUpdate = schedule.find(
-      (consultant) => Object.keys(consultant)[0] === first_key
-    );
-    if (consultantToUpdate) {
-      consultantToUpdate[first_key] = [
-        ...consultantToUpdate[first_key],
-        ...duration_Time,
-      ];
-    }
   } else if (criteria === "rate") {
-    for (let consultant of schedule) {
-      if (
-        !consultant[Object.keys(consultant)[0]].some((time) =>
-          duration_Time.includes(time)
-        )
-      ) {
-        is_available.push(consultant);
-      }
-    }
-
-    if (is_available.length === 0) {
-      console.log("No Service");
-      return;
-    }
-
-    let max_rate_consultant = is_available.reduce((prev, curr) =>
-      prev.rate > curr.rate ? prev : curr
+    minPriceConsultant = isAvailable.reduce(
+      (max, curr) => (curr.rate > max.rate ? curr : max),
+      isAvailable[0]
     );
-    let first_key = Object.keys(max_rate_consultant)[0];
-    console.log(first_key);
+  }
 
-    let consultantToUpdate = schedule.find(
-      (consultant) => Object.keys(consultant)[0] === first_key
-    );
-    if (consultantToUpdate) {
-      consultantToUpdate[first_key] = [
-        ...consultantToUpdate[first_key],
-        ...duration_Time,
-      ];
-    }
+  const firstKey = Object.keys(minPriceConsultant)[0];
+  console.log(firstKey);
+
+  const consultantToUpdate = schedule.find(
+    (consultant) => Object.keys(consultant)[0] === firstKey
+  );
+  if (consultantToUpdate) {
+    consultantToUpdate[firstKey].push(...durationTime);
   }
 }
 
